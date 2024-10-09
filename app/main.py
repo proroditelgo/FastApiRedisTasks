@@ -9,13 +9,14 @@ from fastapi_cache.backends.redis import RedisBackend
 from redis import asyncio as aioredis
 
 from app.config import settings
+from app.users.router import router as users_router
 
 
 
 app = FastAPI()
 
 
-
+app.include_router(users_router)
   
   
 @asynccontextmanager
