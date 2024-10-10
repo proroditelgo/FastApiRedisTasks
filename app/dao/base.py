@@ -21,3 +21,5 @@ class BaseDAO:
 
         result = await redis_client.execute_command("SET", id, **data)
         return "Данные добавлены"
+    
+    

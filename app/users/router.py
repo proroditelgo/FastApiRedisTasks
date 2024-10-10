@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Response
-
+import json
 
 from app.exceptions import CustomExceptions, UserAlreadyExistsException
 
@@ -29,13 +29,23 @@ router = APIRouter(
 async def register_user(user_data: SUser):
     
     existing_user = await UserDAO.find_user(email=user_data.email)
+    user_id: int = await UserDAO.all_users_count()+1
     
     if existing_user:
         raise CustomExceptions
     
     hashed_password = get_password_hash(user_data.password)
     
-    await UserDAO.add_user(email=user_data.email, hashed_password=str(hashed_password))
+    # создание словарика и перевод его в json
+    data={
+        "hashed_password": str(hashed_password), 
+        "user_id": user_id,
+        }
+    
+    data_json = json.dumps(data)
+    
+    
+    await UserDAO.add_user(email=user_data.email, data=data_json)
     
     
     
@@ -65,3 +75,8 @@ async def logout_user(response: Response):
 @router.get("/me")
 async def read_user_me(current_user: list = Depends(get_current_user)):
     return current_user
+
+
+@router.get("/all_users")
+async def read_user_me():
+    return await UserDAO.all_users_count()

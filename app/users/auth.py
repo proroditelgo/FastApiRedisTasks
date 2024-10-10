@@ -1,4 +1,5 @@
 import bcrypt
+import json
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
@@ -50,8 +51,9 @@ def create_access_token(data: dict) -> str:
 async def authenticate_user(email: EmailStr, password: str):
     user = await UserDAO.find_user(email=email)
     
-    
-    if not user and not verify_password(password, user[1]):
+    user_data = json.loads(user[1])
+
+    if not user and not verify_password(password, user_data["hashed_password"]):
         return None
 
     return user
