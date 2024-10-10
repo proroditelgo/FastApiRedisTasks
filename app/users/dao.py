@@ -21,6 +21,7 @@ class UserDAO(BaseDAO):
         
         return "Данные добавлены"
     
+    
     # метод для поиска пользователя
     @classmethod
     async def find_user(cls, email: EmailStr):

@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from fastapi import Request, Depends
 from jose import jwt, JWTError
 from pydantic import EmailStr
-
+import json
 
 from app.users.dao import UserDAO
 from app.exceptions import (AvailableTokenException, 
@@ -56,5 +56,6 @@ async def get_current_user(token: str = Depends(get_token)):
     if not user:
         raise UserIsNotPresent  
     
+    user_data = json.loads(user[1])
     
-    return user
+    return user_data

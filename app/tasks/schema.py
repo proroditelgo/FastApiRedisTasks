@@ -1,6 +1,7 @@
 from datetime import date
 from enum import Enum
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 
 
 class Priority(Enum):
@@ -11,13 +12,11 @@ class Priority(Enum):
 
 class STasks(BaseModel):
     
-    id: int
     title: str = Field(max_length=100)
-    description: str
-    due_data: date
-    is_completed: bool
-    priority: Priority
-    user_id: int
+    description: Optional[str] = None
+    due_data: Optional[date] = None
+    is_completed: bool = False
+    priority: Priority = Priority.MEDIUM
     
     
     
