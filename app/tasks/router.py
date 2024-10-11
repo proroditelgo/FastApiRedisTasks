@@ -21,6 +21,9 @@ async def add_task(task: STasks, current_user: list = Depends(get_current_user))
     user_id = current_user["user_id"]
     task_id: int = await TaskDAO.all_tasks_count(user_id)+1
     
+    while await TaskDAO.find_one(f"{user_id}_{task_id}"):
+        task_id += 1
+    
     
     task: dict = {
         "user_id": int(user_id),
@@ -34,10 +37,6 @@ async def add_task(task: STasks, current_user: list = Depends(get_current_user))
         "task_id": int(task_id),
     }
     
-    print(task)
-    print("*"*50)
-    print("*"*50)
-    print("*"*50)
     
     
     data_json = json.dumps(task)
