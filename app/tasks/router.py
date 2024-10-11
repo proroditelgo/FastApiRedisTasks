@@ -1,6 +1,7 @@
 import json
 from fastapi import APIRouter, Depends
 
+from app.exceptions import TaskIsNotPresent
 from app.tasks.schema import STasks
 from app.tasks.dao import TaskDAO
 from app.users.dependencies import get_current_user
@@ -14,7 +15,7 @@ router = APIRouter(
 )
 
 
-
+#  добавление задачи
 @router.post("/add_task")
 async def add_task(task: STasks, current_user: list = Depends(get_current_user)):
 
@@ -48,11 +49,27 @@ async def add_task(task: STasks, current_user: list = Depends(get_current_user))
 
 
 
-
+# выгрузка числа всех задач пользователя  
 @router.post("/all_task")
-async def add_task(current_user: list = Depends(get_current_user)):
+async def get_all_tasks(current_user: list = Depends(get_current_user)):
     
     
     user_id = current_user["user_id"]
     
     return await TaskDAO.all_tasks_count(user_id)
+
+
+
+# удаление задачи
+@router.delete("/delete_task")
+async def delete_task(task_id: int, current_user: list = Depends(get_current_user)):
+    
+    user_id = current_user["user_id"]
+    
+    
+    if not await TaskDAO.find_one(f"{user_id}_{task_id}"):
+        raise TaskIsNotPresent
+
+    
+    return await TaskDAO.delete(f"{user_id}_{task_id}")
+    

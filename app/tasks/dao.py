@@ -43,3 +43,21 @@ class TaskDAO(BaseDAO):
         email_keys = [key for key in all_keys if email_regex.match(key)]
         
         return len(email_keys)
+    
+    
+    # метод для выгрузки всех задач
+    @classmethod
+    async def all_user_tasks(cls, user_id: int):
+        
+        redis_client = await get_redis_connection()
+        all_keys = await redis_client.keys('*')
+        
+        
+        email_regex = re.compile(f"{user_id}_")
+
+        all_keys = [key.decode('utf-8') for key in all_keys]
+
+        # фильтрация по номеру пользователя, ключи задач в формате user_id + task_id
+        email_keys = [key for key in all_keys if email_regex.match(key)]
+        
+        return len(email_keys)

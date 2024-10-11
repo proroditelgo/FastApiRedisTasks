@@ -45,3 +45,8 @@ class AvailableTokenException(CustomExceptions):
     status_code=status.HTTP_401_UNAUTHORIZED
     detail="Нет токена"
     
+
+class TaskIsNotPresent(CustomExceptions):
+    
+    status_code=status.HTTP_404_NOT_FOUND
+    detail="Такой задачи не существует"
