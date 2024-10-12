@@ -20,7 +20,7 @@ router = APIRouter(
 async def add_task(task: STasks, current_user: list = Depends(get_current_user)):
 
     user_id = current_user["user_id"]
-    task_id: int = await TaskDAO.all_tasks_count(user_id)+1
+    task_id: int = await TaskDAO.get_all_tasks_count(user_id)+1
     
     while await TaskDAO.find_one(f"{user_id}_{task_id}"):
         task_id += 1
@@ -33,7 +33,7 @@ async def add_task(task: STasks, current_user: list = Depends(get_current_user))
         "description": task.description,
         "due_data": str(task.due_data),
         "is_completed": task.is_completed,
-        "priority": str(task.priority),
+        "priority": task.priority.name,
         
         "task_id": int(task_id),
     }
@@ -56,24 +56,10 @@ async def get_all_tasks(current_user: list = Depends(get_current_user)):
     
     user_id = current_user["user_id"]
     
-    return await TaskDAO.all_tasks_count(user_id)
-
-
-
-# удаление задачи
-@router.delete("/delete_task")
-async def delete_task(task_id: int, current_user: list = Depends(get_current_user)):
-    
-    user_id = current_user["user_id"]
+    return await TaskDAO.get_all_tasks_count(user_id)
     
     
-    if not await TaskDAO.find_one(f"{user_id}_{task_id}"):
-        raise TaskIsNotPresent
-
-    
-    return await TaskDAO.delete(f"{user_id}_{task_id}")
-    
-    
+        
     
 # выгрузка задачи по айди
 @router.get("/get_task_by_id")
@@ -90,3 +76,30 @@ async def get_task_by_id(task_id: int, current_user: list = Depends(get_current_
     data_dict = json.loads(task)
     
     return data_dict
+
+
+# выгрузка всех задач пользователя
+@router.get("/get_all_user_tasks")
+async def get_all_user_tasks(current_user: list = Depends(get_current_user)):
+    
+    
+    user_id = current_user["user_id"]
+    
+    
+    return await TaskDAO.get_all_user_tasks(user_id=user_id)
+
+
+
+
+# удаление задачи
+@router.delete("/delete_task")
+async def delete_task(task_id: int, current_user: list = Depends(get_current_user)):
+    
+    user_id = current_user["user_id"]
+    
+    
+    if not await TaskDAO.find_one(f"{user_id}_{task_id}"):
+        raise TaskIsNotPresent
+
+    
+    return await TaskDAO.delete(f"{user_id}_{task_id}")
