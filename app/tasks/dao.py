@@ -33,31 +33,63 @@ class TaskDAO(BaseDAO):
     async def get_all_tasks_count(cls, user_id: int):
         
         redis_client = await get_redis_connection()
-        all_keys = await redis_client.keys('*')
+        keys = await redis_client.keys(f"{user_id}*")
         
-        
-        email_regex = re.compile(f"{user_id}_")
-
-        all_keys = [key.decode('utf-8') for key in all_keys]
-
-        # фильтрация по номеру пользователя, ключи задач в формате user_id + task_id
-        email_keys = [key for key in all_keys if email_regex.match(key)]
-        
-        return len(email_keys)
+        return len(keys)
     
     
     # метод для выгрузки всех задачs
     @classmethod
-    async def get_all_user_tasks(cls, user_id: int):
+    async def get_all_user_tasks(cls, user_id: int, task_count: int, task_viewed: int):
+        
+        end_of_data = False
+        
+        dict_values = []
+        
+        # перебор задач, в зависимости от заданного количества отображения 
+        for task in range(task_count):
+            task +=1
+            
+            values = await cls.find_one(key = f'{user_id}_{int(task)+int(task_viewed)}')
+            
+            if values:
+                dict_values.append(
+                    json.loads(values)
+                    )
+                continue
+            
+            else:
+                end_of_data = True
+                break
+
+        
+        
+        
+        return [dict_values, end_of_data]
+    
+    
+    
+    # метод для поиска свободного номера для задачи
+    @classmethod
+    async def get_free_task_number(cls, user_id: int):
         
         redis_client = await get_redis_connection()
         keys = await redis_client.keys(f"{user_id}*")
-        
-        # выгрузка значений ключей и сразу перевод из json в словарь
-        values = [json.loads(await redis_client.get(key)) for key in keys]
-        
-        
-        dict_values = dict(zip(keys, values))
 
+        print(len(keys))
         
-        return dict_values
+        task_number = 1
+        
+        
+        if len(keys) == 0:
+            return task_number
+        
+        
+        for key in keys:
+            if key.decode("utf-8") == f"{user_id}_{task_number}":
+                print(f"Не туда {task_number}")
+                return task_number
+            else:
+                print(task_number)
+                task_number += 1
+    
