@@ -1,7 +1,18 @@
 import json
 from fastapi import APIRouter, Depends, Request, Response
+from pydantic import Json
+from datetime import date, datetime
 
-from app.exceptions import TaskIsNotPresent
+from app.dao.text_check import check_value, check_for_malicious_code
+from app.exceptions import (
+    TaskIsNotPresent, 
+    ParamIsImmutable, 
+    ParamIsNotDate,
+    ParamIsNotBool,
+    InputError,
+    LenError
+    )
+from app.tasks.input_check import input_check
 from app.tasks.schema import STasks
 from app.tasks.dao import TaskDAO
 from app.users.dependencies import get_current_user
@@ -15,7 +26,7 @@ router = APIRouter(
 )
 
 
-#  добавление задачи
+# ===========ДОБАВЛЕНИЕ ЗАДАЧИ======================
 @router.post("/add_task")
 async def add_task(task: STasks, current_user: list = Depends(get_current_user)):
 
@@ -30,10 +41,10 @@ async def add_task(task: STasks, current_user: list = Depends(get_current_user))
         "user_id": int(user_id),
         
         "title": task.title,
-        "description": task.description,
+        "description": str(task.description),
         "due_data": str(task.due_data),
         "is_completed": task.is_completed,
-        "priority": task.priority.name,
+        "priority": task.priority.value,
         
         "task_id": int(task_id),
     }
@@ -49,7 +60,7 @@ async def add_task(task: STasks, current_user: list = Depends(get_current_user))
 
 
 
-# выгрузка числа всех задач пользователя  
+# =====ВЫГРУЗКА ЧИСЛА ВСЕХ ЗАДАЧ ПОЛЬЗОВАТЕЛЯ====================  
 @router.get("/tasks_count")
 async def get_all_tasks(current_user: list = Depends(get_current_user)):
     
@@ -61,7 +72,7 @@ async def get_all_tasks(current_user: list = Depends(get_current_user)):
     
         
     
-# выгрузка задачи по айди
+# =============ВЫГРУЗКА ЗАДАЧИ ПО АЙДИ======================
 @router.get("/get_task_by_id")
 async def get_task_by_id(task_id: int, current_user: list = Depends(get_current_user)):
     
@@ -78,7 +89,7 @@ async def get_task_by_id(task_id: int, current_user: list = Depends(get_current_
     return data_dict
 
 
-# выгрузка всех задач пользователя
+# ======ВЫГРУЗКА ВСЕХ ЗАДАЧ ПОЛЬЗОВАТЕЛЯ=====================
 @router.get("/get_all_user_tasks")
 async def get_all_user_tasks(
                             request: Request, 
@@ -114,25 +125,40 @@ async def get_all_user_tasks(
 
 
 
-# изменение параметров задачи
-@router.get("/update_task")
-async def update_task(task_id: int, current_user: list = Depends(get_current_user)):
-    
+# =========ИЗМЕНЕНИЕ ПАРАМЕТРОВ ЗАДАЧИ==============
+@router.put("/update_task")
+async def update_task(task_id: int, param: str, new_value: str, current_user: list = Depends(get_current_user)):
     
     user_id = current_user["user_id"]
-    
+    # выгрузка задачи и проверка на её наличие
     task = await TaskDAO.find_one(f"{user_id}_{task_id}")
+    
     
     if not task:
         raise TaskIsNotPresent
     
+    
     data_dict = json.loads(task)
     
-    return data_dict
+    
+    if param == "is_completed":
+        new_value = input_check(param=param, new_value=new_value)
+    else:
+        input_check(param=param, new_value=new_value)
+
+    
+    data_dict[param] = new_value
+            
+    data_json = json.dumps(data_dict)
+
+    await TaskDAO.add_task(data=data_json, user_id=user_id, task_id=task_id)    
+    return f"Задача номер {task_id} изменена"
+    
 
 
 
-# удаление задачи
+
+# =============УДАЛЕНИЕ ЗАДАЧИ==========================
 @router.delete("/delete_task")
 async def delete_task(task_id: int, current_user: list = Depends(get_current_user)):
     

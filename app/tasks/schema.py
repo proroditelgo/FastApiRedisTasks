@@ -1,7 +1,8 @@
 from datetime import date
 from enum import Enum
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 from typing import Optional
+
 
 
 class Priority(Enum):
@@ -22,3 +23,4 @@ class STasks(BaseModel):
     
     class ConfigDict:
         from_attributes = True
+        
