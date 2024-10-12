@@ -50,7 +50,7 @@ async def add_task(task: STasks, current_user: list = Depends(get_current_user))
 
 
 # выгрузка числа всех задач пользователя  
-@router.post("/all_task")
+@router.post("/tasks_count")
 async def get_all_tasks(current_user: list = Depends(get_current_user)):
     
     
@@ -73,3 +73,20 @@ async def delete_task(task_id: int, current_user: list = Depends(get_current_use
     
     return await TaskDAO.delete(f"{user_id}_{task_id}")
     
+    
+    
+# выгрузка задачи по айди
+@router.get("/get_task_by_id")
+async def get_task_by_id(task_id: int, current_user: list = Depends(get_current_user)):
+    
+    
+    user_id = current_user["user_id"]
+    
+    task = await TaskDAO.find_one(f"{user_id}_{task_id}")
+    
+    if not task:
+        raise TaskIsNotPresent
+    
+    data_dict = json.loads(task)
+    
+    return data_dict
