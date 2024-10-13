@@ -29,10 +29,13 @@ router = APIRouter(
 async def register_user(user_data: SUser):
     
     existing_user = await UserDAO.find_user(email=user_data.email)
-    user_id: int = await UserDAO.all_users_count()+1
+    
     
     if existing_user:
         raise CustomExceptions
+    
+    user_id: int = await UserDAO.check_and_create_redis_variable(key="users", default_value=1)
+    
     
     hashed_password = get_password_hash(user_data.password)
     

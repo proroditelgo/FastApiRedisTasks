@@ -1,18 +1,18 @@
 from fastapi import FastAPI
 
+# для кеширования
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
-
 from redis import asyncio as aioredis
-
-from app.config import settings
 
 # роутеры
 from app.users.router import router as users_router
 from app.tasks.router import router as tasks_router
+
+from app.config import settings
 
 
 app = FastAPI()
@@ -32,3 +32,6 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
  
 	FastAPICache.init(RedisBackend(redis), prefix="cache")
 	yield
+ 
+ 
+ 

@@ -87,3 +87,14 @@ class PriorityError(CustomExceptions):
     detail="Неправильно указан приоритет, формат low, medium или high" 
     
 # ====================================================== 
+
+
+# ========ОШИБКИ ПОДКЛЮЧЕНИЯ К БД=======================
+class RedisConnectionError(CustomExceptions):
+    
+    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
+    detail="Нет подключения к базе данных" 
+    
+    
+# ====================================================== 
+    
