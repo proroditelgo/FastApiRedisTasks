@@ -47,6 +47,8 @@ async def register_user(user_data: SUser):
     
     await UserDAO.add_user(email=user_data.email, data=data_json)
     
+    return "Вы успешно зарегистрировались"
+    
     
     
     
@@ -62,13 +64,16 @@ async def login_user(response: Response, user_data: SUser):
     acces_token = create_access_token({"sub": str(user[0])})
     response.set_cookie("user_access_token", acces_token, httponly=True)
     
-    return acces_token
+    return "Авторизация прошла успешно"
 
 
 
 @router.post("/logout")
 async def logout_user(response: Response):
     response.delete_cookie("user_access_token")
+    
+    return "Вы вышли из сети"
+
     
     
     
@@ -77,6 +82,3 @@ async def read_user_me(current_user: list = Depends(get_current_user)):
     return current_user
 
 
-@router.get("/all_users")
-async def read_user_me():
-    return await UserDAO.all_users_count()

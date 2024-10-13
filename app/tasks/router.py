@@ -101,11 +101,15 @@ async def get_all_user_tasks(
     
     user_id = current_user["user_id"]
     
-    task_viewed = int(request.cookies.get("task_viewed"))
+    
+    task_viewed = request.cookies.get("task_viewed")
+    
     
     # если нет просмотров - выставляется начальное значение в 0
     if not task_viewed:
         task_viewed = 0
+    else:
+        task_viewed = int(task_viewed)
         
     # выгрузка данных
     result = await TaskDAO.get_all_user_tasks(user_id=user_id, task_count=task_count, task_viewed=task_viewed)
@@ -116,10 +120,12 @@ async def get_all_user_tasks(
     # если True - просмотры обнуляются для последующей итерации
     if not end_of_data:
         task_viewed += int(task_count)
-        response.set_cookie("task_viewed", task_viewed, httponly=True)
+        response.set_cookie("task_viewed", task_viewed, httponly=True, max_age=600)
     else:
-        response.set_cookie("task_viewed", 0, httponly=True)
+        response.set_cookie("task_viewed", 0, httponly=True, max_age=600)
     
+    if len(dict_values) == 0:
+        return "Конец списка задач"
     
     return dict_values
 
