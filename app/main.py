@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # для кеширования
 from collections.abc import AsyncIterator
@@ -21,7 +22,29 @@ app = FastAPI()
 app.include_router(users_router)
 app.include_router(tasks_router)
   
+
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["POST", "GET", "DELETE", "PUT"],
+    allow_headers=[
+        "Content-Type",
+        "Set-Cookie",
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Origin",
+        "Authorization",
+    ],
+)  
   
+# для кеширования с временем сохранения кеша 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 	redis = aioredis.from_url(

@@ -1,6 +1,6 @@
 import json
-import re
-from pydantic import EmailStr, Json
+
+from pydantic import Json
 from app.dao.base import BaseDAO
 from app.database import get_redis_connection
 
@@ -87,7 +87,6 @@ class TaskDAO(BaseDAO):
         
         for key in keys:
             if key.decode("utf-8") == f"{user_id}_{task_number}":
-                print(f"Не туда {task_number}")
                 return task_number
             else:
                 print(task_number)

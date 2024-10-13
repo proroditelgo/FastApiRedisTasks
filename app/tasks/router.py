@@ -1,17 +1,9 @@
 import json
 from fastapi import APIRouter, Depends, Request, Response
-from pydantic import Json
-from datetime import date, datetime
 
-from app.dao.text_check import check_value, check_for_malicious_code
-from app.exceptions import (
-    TaskIsNotPresent, 
-    ParamIsImmutable, 
-    ParamIsNotDate,
-    ParamIsNotBool,
-    InputError,
-    LenError
-    )
+
+from app.exceptions import TaskIsNotPresent
+
 from app.tasks.input_check import input_check
 from app.tasks.schema import STasks
 from app.tasks.dao import TaskDAO
