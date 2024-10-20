@@ -24,8 +24,6 @@ app.include_router(tasks_router)
   
 
 origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
     "http://localhost",
     "http://localhost:8080",
 ]
