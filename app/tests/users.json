@@ -1,0 +1,14 @@
+{
+    "test_user_2023@test.com": {
+        "hashed_password":"testirovanie1230",
+        "user_id": "20"
+    },
+    "test_user_2022@testing.com": {
+        "hashed_password":"testirovanie1230asdq",
+        "user_id": "21"
+    },
+    "test_user_200030@testerov.com": {
+        "hashed_password":"testirovanieVSEGO3341",
+        "user_id": "22"
+    }
+}
